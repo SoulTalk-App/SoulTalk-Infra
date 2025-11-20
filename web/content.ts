@@ -115,9 +115,10 @@ export const content = {
       title: "Ready to Begin Your\nJourney Within?",
       subtitle:
         "Join thousands discovering deeper self-awareness and emotional wellness. Your companion is waiting to listen.",
-      primaryButton: "Get Started Free",
-      secondaryButton: "Download App",
-      note: "No credit card required • Start chatting in 30 seconds",
+      emailPlaceholder: "Enter your email address",
+      submitButton: "Join the Journey",
+      emailInfo: "Get early access and exclusive updates about SoulTalk",
+      note: "No spam, unsubscribe anytime • Be the first to know when we launch",
     },
     logoAlt: "SoulTalk Logo",
     copyrightText: "Affiliated with SoulTalk © {year}. All rights reserved.",
@@ -142,4 +143,4 @@ export const content = {
   },
 };
 
-export type ContentType = typeof content
+export type ContentType = typeof content;
