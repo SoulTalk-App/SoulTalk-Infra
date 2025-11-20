@@ -29,8 +29,8 @@ jobs:
           echo "🚀 Starting SoulTalk content deployment..."
           
           # Set variables
-          INFRA_DIR="/home/ubuntu/Soultalk-Infra"
-          WEB_DIR="/home/ubuntu/Soultalk-Web"
+          INFRA_DIR="/home/ubuntu/SoulTalk-Infra"
+          WEB_DIR="/home/ubuntu/SoulTalk-Web"
           DEPLOY_DIR="/var/www/soultalk"
           BACKUP_DIR="/var/www/soultalk-backup-$(date +%Y%m%d-%H%M%S)"
           
@@ -38,7 +38,7 @@ jobs:
           echo "📥 Pulling latest changes from SoulTalk-Infra..."
           cd "$INFRA_DIR"
           git fetch origin
-          git reset --hard origin/main
+          git pull
           
           # Copy content file to web project
           echo "📁 Copying content file..."
