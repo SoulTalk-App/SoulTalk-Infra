@@ -1,0 +1,84 @@
+name: Deploy SoulTalk Content Updates
+
+on:
+  push:
+    branches:
+      - main
+      - master
+    paths:
+      - 'web/content.ts'
+  workflow_dispatch: # Allow manual triggering
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout SoulTalk-Infra
+      uses: actions/checkout@v4
+    
+    - name: Deploy to Server via SSH
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.SERVER_HOST }}
+        username: ${{ secrets.SERVER_USER }}
+        key: ${{ secrets.SERVER_SSH_KEY }}
+        port: ${{ secrets.SERVER_PORT || 22 }}
+        script: |
+          set -e  # Exit on any error
+          
+          echo "🚀 Starting SoulTalk content deployment..."
+          
+          # Set variables
+          INFRA_DIR="$HOME/soultalk-infra"
+          WEB_DIR="$HOME/soultalk-web"
+          DEPLOY_DIR="/var/www/soultalk"
+          BACKUP_DIR="/var/www/soultalk-backup-$(date +%Y%m%d-%H%M%S)"
+          
+          # Navigate to infra directory and pull latest changes
+          echo "📥 Pulling latest changes from SoulTalk-Infra..."
+          cd "$INFRA_DIR"
+          git fetch origin
+          git reset --hard origin/main
+          
+          # Copy content file to web project
+          echo "📁 Copying content file..."
+          cp "$INFRA_DIR/web/content.ts" "$WEB_DIR/src/config/content.ts"
+          
+          # Navigate to web directory and build
+          echo "🔨 Building SoulTalk web application..."
+          cd "$WEB_DIR"
+          npm ci --silent
+          npm run build
+          
+          # Create backup of current deployment
+          echo "💾 Creating backup..."
+          if [ -d "$DEPLOY_DIR" ]; then
+            sudo cp -r "$DEPLOY_DIR" "$BACKUP_DIR"
+          fi
+          
+          # Deploy new build
+          echo "🚀 Deploying to web server..."
+          sudo mkdir -p "$DEPLOY_DIR"
+          sudo cp -r "$WEB_DIR/dist"/* "$DEPLOY_DIR/"
+          
+          # Set proper permissions
+          sudo chown -R www-data:www-data "$DEPLOY_DIR"
+          sudo chmod -R 755 "$DEPLOY_DIR"
+          
+          # Verify deployment
+          echo "🔍 Verifying deployment..."
+          if [ -f "$DEPLOY_DIR/index.html" ]; then
+            echo "✅ Deployment verified - index.html exists"
+            echo "📊 Deployment size: $(du -sh $DEPLOY_DIR | cut -f1)"
+          else
+            echo "❌ Deployment verification failed"
+            exit 1
+          fi
+          
+          # Cleanup old backups (keep last 5)
+          echo "🧹 Cleaning up old backups..."
+          sudo find /var/www -name "soultalk-backup-*" -type d | head -n -5 | sudo xargs rm -rf 2>/dev/null || true
+          
+          echo "🎉 SoulTalk deployment completed successfully!"
+          echo "🌐 Website updated with latest content changes"
