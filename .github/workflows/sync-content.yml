@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - master
     paths:
       - 'web/content.ts'
   workflow_dispatch: # Allow manual triggering
@@ -30,8 +29,8 @@ jobs:
           echo "🚀 Starting SoulTalk content deployment..."
           
           # Set variables
-          INFRA_DIR="$HOME/soultalk-infra"
-          WEB_DIR="$HOME/soultalk-web"
+          INFRA_DIR="/home/ubuntu/Soultalk-Infra"
+          WEB_DIR="/home/ubuntu/Soultalk-Web"
           DEPLOY_DIR="/var/www/soultalk"
           BACKUP_DIR="/var/www/soultalk-backup-$(date +%Y%m%d-%H%M%S)"
           
@@ -59,12 +58,8 @@ jobs:
           
           # Deploy new build
           echo "🚀 Deploying to web server..."
-          sudo mkdir -p "$DEPLOY_DIR"
-          sudo cp -r "$WEB_DIR/dist"/* "$DEPLOY_DIR/"
-          
-          # Set proper permissions
-          sudo chown -R www-data:www-data "$DEPLOY_DIR"
-          sudo chmod -R 755 "$DEPLOY_DIR"
+          sudo rm -rf "$DEPLOY_DIR"
+          sudo mv "$WEB_DIR/dist"/ "$DEPLOY_DIR/"
           
           # Verify deployment
           echo "🔍 Verifying deployment..."
