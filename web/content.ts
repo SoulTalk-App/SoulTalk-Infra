@@ -3,7 +3,7 @@ export const content = {
   hero: {
     logoAlt: "SoulTalk",
     textParts: {
-      before: "Deepen your connection ",
+      before: "Check your connection ",
       gradient: "with yourself",
       after: ". SoulTalk helps you explore your inner world through AI-guided reflection, building self-awareness and emotional wellness one conversation at a time."
     }
